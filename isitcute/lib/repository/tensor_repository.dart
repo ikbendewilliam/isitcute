@@ -1,5 +1,9 @@
-import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:tflite/tflite.dart';
 
 class TensorRepository {
-  static Future<Interpreter> loadModel() async => Interpreter.fromAsset('model/iscute.tflite');
+  static Future<String> loadModel() async => Tflite.loadModel(
+        model: "assets/model/iscute.tflite",
+        labels: "assets/model/labels.txt",
+        isAsset: true,
+      );
 }

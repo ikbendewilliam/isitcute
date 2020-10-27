@@ -54,13 +54,9 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     );
     _initializeControllerFuture = _controller.initialize();
     loadModel();
-    timer = Timer.periodic(Duration(seconds: 5), (_) {
-      predict();
-      setState(() {});
-    });
   }
 
-  Future<void> predict() async {
+  Future<void> predict({delete: true}) async {
     try {
       await _initializeControllerFuture;
 
@@ -76,24 +72,31 @@ class TakePictureScreenState extends State<TakePictureScreen> {
         // imageStd: 255.0,
         numResults: 1,
         // threshold: 0.2,
-        // asynch: false,
+        asynch: true,
       );
-      print(predictions);
+      // print(predictions);
       iscute = predictions.toString();
-      File tempLocalFile = File(path);
-      tempLocalFile.exists().then((value) async {
-        if (value) {
-          await tempLocalFile.delete(recursive: true);
-        }
-      });
+      if (delete == true) {
+        File tempLocalFile = File(path);
+        tempLocalFile.exists().then((value) async {
+          if (value) {
+            await tempLocalFile.delete(recursive: true);
+          }
+        });
+      }
     } catch (e) {
-      print(e);
+      // print(e);
     }
   }
 
   void loadModel() async {
     model = await TensorRepository.loadModel();
+    predict();
     setState(() {});
+    timer = Timer.periodic(Duration(seconds: 5), (_) {
+      predict();
+      setState(() {});
+    });
   }
 
   @override
@@ -126,7 +129,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.camera_alt),
         onPressed: () async {
-          await predict();
+          await predict(delete: false);
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -151,8 +154,9 @@ class DisplayPictureScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // print('path: $imagePath');
     return Scaffold(
-        appBar: AppBar(title: Text('Display the Picture')),
+        appBar: AppBar(title: Text('Is it cute photo')),
         body: Column(
           children: [
             Text(cuteness),
